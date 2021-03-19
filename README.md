@@ -3,7 +3,7 @@
 
 ## Usage example
 
-Add [HotbatListener](https://github.com/EnzoLy/Hotbar/blob/main/src/main/java/me/enzol/hotbar/HotbarListener.java) to your main class
+[Spigot](https://www.spigotmc.org/threads/hotbar-utils.496011/)
 
 _For more examples and usage, please refer to the [Example Plugin](https://github.com/EnzoLy/Hotbar/tree/main/src/main/java/example)._
 
