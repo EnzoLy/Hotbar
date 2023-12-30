@@ -1,24 +1,27 @@
 package me.enzol.hotbar;
 
+import com.google.common.collect.Maps;
 import lombok.Getter;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.function.Predicate;
 
 @Getter
-public enum Hotbar {
+public class Hotbar {
 
-    SPAWN(player -> player.hasMetadata("spawn"),
+    private static final Hotbar SPAWN = new Hotbar(player -> player.hasMetadata("spawn"),
         new HotbarItem(0, new ItemStack(Material.COMPASS)).addInteract(player -> player.sendMessage("test")),
         new HotbarItem(1, new ItemStack(Material.WATCH)).addInteract(player -> player.sendMessage("Hi"))
-    ),
-    SPECTATOR(player -> player.hasMetadata("spectator"),
+    );
+
+    private static final Hotbar SPECTATOR = new Hotbar(player -> player.hasMetadata("spectator"),
         new HotbarItem(0, new ItemStack(Material.COMPASS)).addInteract(player -> player.sendMessage("test"))
     );
+
+    private static final Map<Integer, Hotbar> HOTBAR_TYPES = Maps.newHashMap();
 
     private Predicate<Player> filter;
     private List<HotbarItem> items;
@@ -31,9 +34,14 @@ public enum Hotbar {
     Hotbar(Predicate<Player> filter, HotbarItem... items) {
         this.filter = filter;
         this.items = Arrays.asList(items);
+
+        this.items.forEach(hotbarItem -> {
+            ItemStack itemStack = hotbarItem.getItem();
+            HOTBAR_TYPES.put(Objects.hash(itemStack.getItemMeta(), itemStack.getItemMeta().getLore()), this);
+        });
     }
 
-    public void giveItems(Player player){
+    public void giveItems(Player player) {
 
         player.getInventory().setArmorContents(new ItemStack[4]);
         player.getInventory().setContents(new ItemStack[36]);
@@ -55,11 +63,15 @@ public enum Hotbar {
      * @return values of enum converted in ArrayList
      */
     public static List<Hotbar> getHotbars(){
-        return Arrays.asList(values());
+        return Arrays.asList(SPAWN, SPECTATOR);
     }
 
-    public HotbarItem getItem(ItemStack itemStack){
-        return items.stream().filter(hotbarItem -> hotbarItem.getItem().isSimilar(itemStack)).findFirst().orElse(null);
+    public HotbarItem getHotbarItem(ItemStack itemStack) {
+        return HOTBAR_TYPES.get(Objects.hash(itemStack.getItemMeta(), itemStack.getItemMeta().getLore())).getItems().stream().filter(hotbarItem -> hotbarItem.getItem().equals(itemStack)).findFirst().orElse(null);
+    }
+
+    public static Hotbar getHotbar(ItemStack itemStack) {
+        return HOTBAR_TYPES.get(Objects.hash(itemStack.getItemMeta(), itemStack.getItemMeta().getLore()));
     }
 
 }

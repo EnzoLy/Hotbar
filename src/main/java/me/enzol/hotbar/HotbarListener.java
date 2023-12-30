@@ -12,13 +12,13 @@ public class HotbarListener implements Listener {
     public void onInteract(PlayerInteractEvent event){
         Player player = event.getPlayer();
 
-        Hotbar hotbar = Hotbar.getHotbars().stream()
-                .filter(it -> it.getFilter().test(player))
-                .findFirst().orElse(null);
+        Hotbar hotbar = Hotbar.getHotbar(player.getItemInHand());
 
         if(hotbar == null) return;
 
-        HotbarItem item = hotbar.getItem(player.getItemInHand());
+        if (hotbar.getFilter() != null && !hotbar.getFilter().test(player)) return;
+
+        HotbarItem item = hotbar.getHotbarItem(player.getItemInHand());
 
         if(item == null || !item.getActions().contains(event.getAction())) return;
 
